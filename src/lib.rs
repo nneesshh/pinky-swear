@@ -30,7 +30,7 @@
 
 doc_comment::doctest!("../README.md");
 
-use flume::{Receiver, Sender};
+use crossbeam_channel as channel;
 use parking_lot::{Mutex, RwLock};
 use std::{
     fmt,
@@ -50,14 +50,14 @@ pub trait Cancellable<E> {
 /// A PinkySwear is a Promise that the other party is supposed to honour at some point.
 #[must_use = "PinkySwear should be used or you can miss errors"]
 pub struct PinkySwear<T> {
-    recv: Receiver<T>,
+    recv: channel::Receiver<T>,
     pinky: Pinky<T>,
 }
 
 impl<T: Send + 'static> PinkySwear<T> {
     /// Create a new PinkySwear and its associated Pinky.
     pub fn new() -> (Self, Pinky<T>) {
-        let (send, recv) = flume::unbounded();
+        let (send, recv) = channel::unbounded();
         let pinky = Pinky {
             send,
             waker: Default::default(),
@@ -125,7 +125,7 @@ impl<T> Drop for PinkySwear<T> {
 
 /// A Pinky allows you to fulfill a Promise that you made.
 pub struct Pinky<T> {
-    send: Sender<T>,
+    send: channel::Sender<T>,
     waker: Arc<Mutex<Option<Waker>>>,
     marker: Arc<RwLock<Option<String>>>,
 }

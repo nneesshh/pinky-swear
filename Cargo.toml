@@ -13,7 +13,8 @@ rust-version = "1.56.0"
 
 [dependencies]
 doc-comment = "^0.3"
-parking_lot = "^0.12"
+crossbeam-channel = "0.5"
+parking_lot = { path = "../parking_lot" }
 
 [dependencies.flume]
 version = "^0.11"
